@@ -6,6 +6,7 @@ const dbService = DBService.DBServiceInstance;
 import bcrypt from 'bcryptjs';
 import * as userAuthModel from './../models/user_auth.model.js';
 const uam = userAuthModel.default;
+import * as jwt from 'jsonwebtoken';
 class AuthService {
   instance = null;
 
@@ -32,26 +33,28 @@ class AuthService {
       responseObj.data = {};
       if (this.#validate(email, password)) {
         await dbService.connect();
-        const userAuthDataFromDB = uam.find({ email: email });
-        
-        console.log('userAuthDataFromDB',userAuthDataFromDB)
-        const passwordHashFromDB = userDataFromDB[0]["password"];
-        const match = await bcrypt.compare(password.trim(), passwordHashFromDB);
-        if (match) {
-          // making session entry
-          dbService.query(`INSERT INTO ${userSessionDBName} (user_id, login_time) VALUES ('${userDataFromDB[0]['user_id']}', ${Date.now()});`)
-          const userData = userDataFromDB[0];
-          responseObj.data = userData;
-          responseObj.data.success = true;
-          responseObj.data.mobile = mobile;
-          // enterring division names
-          let divisionIdString = '';
+        const userAuthDataFromDB = await uam.find({ email: email }).exec();
+        if (userAuthDataFromDB.length) {
+          const passwordComparissonResult = await bcrypt.compare(password, userAuthDataFromDB[0].password); console.log('passwordComparissonResult', passwordComparissonResult);
+          if (passwordComparissonResult) {
+            // generating token as login credentials matched
+            const token = jwt.default.sign(
+              { email },
+              'my_secret_private_key_which_should_not_be_provided_like_this',
+              {
+                algorithm: "HS512",
+                expiresIn: "90h",
+              }
+            );
 
+            responseObj.data = { token };
+            return Promise.resolve(commonService.successResponse(responseObj, responseObj.status));
+          }
         } else {
-          throw ({ message: "User id and or password is wrong", status: 403 });
+          throw ({ message: "user id or password mismatch" });
         }
-      }
-      else {
+        console.log('userAuthDataFromDB', userAuthDataFromDB);
+      } else {
         throw ({ message: "User id and or password is invalid", status: 403 });
       }
       return Promise.resolve(commonService.successResponse(responseObj, responseObj.status));
@@ -65,22 +68,22 @@ class AuthService {
     }
   }
 
-  async register({ email, mobile, password }) {
+  async register({ email, password }) {
     try {
       if (this.#validate(email, password)) {
         const passwordHash = await bcrypt.hash(password, 5);
-        await this.dbService.connect();
-        const userData = new uam({email, password});
+        await dbService.connect();
+        const userData = new uam({ email, password: passwordHash });
         await userData.save();
-        return Promise.resolve({status:201,message:"user registered succesfully"});
+        return Promise.resolve({ status: 201, message: "user registered succesfully" });
       }
     } catch (error) {
       console.log(error);
       return Promise.reject(
         commonService.rejectResponse(error.message || "Unknown error", error.status || 405)
       );
-    } finally{
-      this.dbService.disConnect();
+    } finally {
+      dbService.disConnect();
     }
   }
 }

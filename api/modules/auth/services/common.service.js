@@ -13,7 +13,6 @@ class CommonService {
   }
 
   successResponse(payload, code = 200) {
-    payload.supportedAppVersion = process.env.SUPPORTED_APP_VERSION.split(',');
     return { payload, code };
   }
 }

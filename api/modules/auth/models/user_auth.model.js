@@ -4,12 +4,13 @@ let Schema = mongoose.Schema;
 
 let schema = new Schema({
   email: { type: String, required: true },
-  phonenumber: { type: Number, required: true },
+  phonenumber: { type: Number, required: false, default: 0 },
   password: { type: String, required: true },
   type: {
     type: String,
     enum: ["admin", "user"],
-    required: true
+    required: false,
+    default: "user"
   }
 },
   { timestamps: true, optimisticConcurrency: true }
@@ -17,4 +18,5 @@ let schema = new Schema({
 
 // If no path is given, all date fields will be applied
 schema.plugin(patcher);
+mongoose.set('strictQuery', true)
 export default mongoose.model("user_auth", schema);

@@ -1,6 +1,6 @@
 class CommonController {
   instance = null;
-  
+
   constructor() {
     this.handleRequest = this.handleRequest.bind(this);
   }
@@ -90,14 +90,11 @@ class CommonController {
     return requestParams;
   }
 
-  async handleRequest(request, response, serviceOperation, validationSchema) {
+  async handleRequest(request, response, serviceOperation, isLoginRequest = false, validationSchema) {
     try {
+      let serviceResponse;
       const consolidatedParams = this.#collectRequestParams(request);
-      if (request.identity) {
-        consolidatedParams.identity = request.identity;
-        console.log('request.identity', request.identity);
-      }
-      const serviceResponse = await serviceOperation(consolidatedParams);
+      serviceResponse = await serviceOperation(consolidatedParams);
       this.#sendResponse(response, serviceResponse);
     } catch (error) {
       this.#sendError(response, error);

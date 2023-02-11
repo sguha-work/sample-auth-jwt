@@ -15,7 +15,7 @@ class DBService {
     return `mongodb+srv://angshu_mongo:HhWjjsZoi1wDqZkj@cluster0.1f9ag.mongodb.net/${dbName}?authSource=admin&replicaSet=atlas-gfk4y7-shard-0&readPreference=primary&ssl=true`
   }
 
-  async connect(DBName) {
+  async connect(DBName='sample-auth-jwt') {
     try {
       await mongoose.connect(this.connectionString(DBName)); // await on a step makes process to wait until it's done/ err'd out.
       this.db = mongoose.connection;

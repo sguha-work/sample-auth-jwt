@@ -1,5 +1,6 @@
 import CommonController from './common.controller.js';
 import AuthService from '../services/auth.service.js';
+import { passport, JWTStrategy, ExtractJWT } from './../services/passport.service.js';
 
 const authService = AuthService.AuthServiceInstance;
 const commonController = CommonController.CommonControllerInstance;
@@ -13,12 +14,12 @@ class AuthController {
     }
     return this.instance;
   }
-  
-  async login (request, response) {
+
+  async login(request, response) {
     await commonController.handleRequest(request, response, authService.login);
   };
 
-  async register (request, response) {
+  async register(request, response) {
     await commonController.handleRequest(request, response, authService.register);
   };
 }
