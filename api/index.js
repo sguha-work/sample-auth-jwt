@@ -5,6 +5,7 @@ import fs from 'fs';
 import https from 'https';
 
 import * as authRouter from './modules/auth/routes/auth.routes.js';
+import * as profileRouter from './modules/profile/routes/profile.routes.js';
 dotenv.config();
 const app = express();
 app.use(bodyParser.json());
@@ -17,6 +18,7 @@ app.use((req, res, next) => {
 });
 
 app.use('/auth', authRouter.default);
+app.use('/profile', profileRouter.default);
 
 // getting pem and cert file for https setup
 // const key = fs.readFileSync('./key.pem');

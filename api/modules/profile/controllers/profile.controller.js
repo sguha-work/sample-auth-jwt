@@ -1,8 +1,7 @@
 import CommonController from './common.controller.js';
-import AuthService from '../services/profile.service.js';
-import { passport, JWTStrategy, ExtractJWT } from './../services/passport.service.js';
+import ProfileService from '../services/profile.service.js';
 
-const profileService = AuthService.AuthServiceInstance;
+const profileService = ProfileService.ProfileServiceInstance;
 const commonController = CommonController.CommonControllerInstance;
 
 class ProfileController {
@@ -14,8 +13,12 @@ class ProfileController {
     }
     return this.instance;
   }
-  async addProfileDetails() {
+  async addProfileDetails(request, response) {
+    await commonController.handleRequest(request, response, profileService.addProfileDetails,true);
+  }
 
+  async getProfileDetails(request, response) {
+    await commonController.handleRequest(request, response, profileService.getProfileDetails, true);
   }
 
   

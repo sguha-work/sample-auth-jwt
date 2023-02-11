@@ -1,3 +1,4 @@
+import * as jwt from 'jsonwebtoken';
 class CommonController {
   instance = null;
 
@@ -90,13 +91,30 @@ class CommonController {
     return requestParams;
   }
 
-  async handleRequest(request, response, serviceOperation, isLoginRequest = false, validationSchema) {
+  async handleRequest(request, response, serviceOperation,jwtValidate=true, validationSchema) {
     try {
+      let flag = true;
+      if(jwtValidate) {
+        if(typeof request.headers.authorization === 'undefined') {
+          throw(new Error('Token can not be empty'));
+        }
+        const token = request.headers.authorization.split(' ')[1]
+        const decode = jwt.default.verify(token, 'my_secret_private_key_which_should_not_be_provided_like_this');
+        if(!decode) {
+          flag = false;
+          throw(new Error('Token is not valid or expired'));
+        } 
+      }
+      if(flag) {
       let serviceResponse;
       const consolidatedParams = this.#collectRequestParams(request);
       serviceResponse = await serviceOperation(consolidatedParams);
       this.#sendResponse(response, serviceResponse);
+    } else {
+      throw(new Error('Token is not valid or expired'));
+    }
     } catch (error) {
+      console.error(error);
       this.#sendError(response, error);
     }
   }

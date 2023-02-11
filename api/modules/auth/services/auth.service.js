@@ -39,7 +39,7 @@ class AuthService {
           if (passwordComparissonResult) {
             // generating token as login credentials matched
             const token = jwt.default.sign(
-              { email },
+              { email,id:userAuthDataFromDB[0]["_id"],type:userAuthDataFromDB[0]['type'] },
               'my_secret_private_key_which_should_not_be_provided_like_this',
               {
                 algorithm: "HS512",
