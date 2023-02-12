@@ -6,8 +6,14 @@ import https from 'https';
 
 import * as authRouter from './modules/auth/routes/auth.routes.js';
 import * as profileRouter from './modules/profile/routes/profile.routes.js';
+import cors from 'cors';
 dotenv.config();
+
+
 const app = express();
+app.use(cors({
+    origin: 'http://localhost:3000'
+}));
 app.use(bodyParser.json());
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
